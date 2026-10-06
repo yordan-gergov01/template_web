@@ -4,7 +4,11 @@ import { useState, type ReactNode } from 'react';
 import { AuthProvider } from '@/providers/auth/AuthProvider';
 import { createQueryClient } from '@/lib/query-client';
 
-export function AppProviders({ children }: { children: ReactNode }) {
+export interface AppProvidersProps {
+  children: ReactNode;
+}
+
+export function AppProviders({ children }: AppProvidersProps) {
   const [queryClient] = useState(createQueryClient);
 
   return (

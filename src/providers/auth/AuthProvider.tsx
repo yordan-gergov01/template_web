@@ -11,20 +11,27 @@ import {
 import { AuthContext, type AuthContextValue, type SessionEndReason } from './auth-context';
 import { hasPermission } from './permissions';
 import { loginRequest, logoutRequest, meQueryOptions } from './session-api';
-import { setUnauthorizedHandler } from '@/lib/api/http';
+import { setForbiddenHandler, setUnauthorizedHandler } from '@/lib/api/http';
 import type { Permission } from '@/lib/api/types';
 import { EXPIRY_MARGIN_MS, tokenStorage } from '@/lib/token-storage';
 
 // setTimeout fires at once for delays above this (about 24.8 days).
 const MAX_TIMEOUT_MS = 2 ** 31 - 1;
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+export interface AuthProviderProps {
+  children: ReactNode;
+}
+
+export function AuthProvider({ children }: AuthProviderProps) {
   const queryClient = useQueryClient();
   const stored = useSyncExternalStore(tokenStorage.subscribe, tokenStorage.get);
   const [endReason, setEndReason] = useState<SessionEndReason | null>(null);
 
   const me = useQuery({ ...meQueryOptions, enabled: stored !== null });
 
+  // useCallback and useMemo below are referential: the context value reaches
+  // every page, so it must change only when the session does, and endSession is
+  // a dependency of the effects that register the 401 handler and the timer.
   const endSession = useCallback(
     (reason: SessionEndReason | null) => {
       tokenStorage.clear();
@@ -41,6 +48,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         endSession('unauthorized');
       }),
     [endSession],
+  );
+
+  // A refused request may mean the user's permissions changed: reload them so
+  // the navigation catches up. The reload itself never reports a 403.
+  useEffect(
+    () =>
+      setForbiddenHandler(() => {
+        void queryClient.invalidateQueries({ queryKey: meQueryOptions.queryKey });
+      }),
+    [queryClient],
   );
 
   // End the session shortly before the token expires.

@@ -1,0 +1,72 @@
+import { useState, type SubmitEvent } from 'react';
+
+import { useLogin } from './use-login';
+import { ErrorMessage } from '@/components/ui/ErrorMessage';
+import { Field } from '@/components/ui/Field';
+import { ApiError } from '@/lib/api/errors';
+
+/**
+ * Wrong username, wrong password and an inactive account all get the same
+ * answer from the backend, and the same message here.
+ */
+const INVALID_CREDENTIALS_MESSAGE = 'The username or password is incorrect.';
+
+export function LoginForm() {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const mutation = useLogin();
+
+  const submit = (event: SubmitEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    mutation.mutate({ username, password });
+  };
+
+  const { error } = mutation;
+  const invalidCredentials = error instanceof ApiError && error.code === 'INVALID_CREDENTIALS';
+
+  return (
+    <form onSubmit={submit} noValidate>
+      {invalidCredentials && (
+        <p role="alert" className="error-message">
+          {INVALID_CREDENTIALS_MESSAGE}
+        </p>
+      )}
+      {error && !invalidCredentials && <ErrorMessage error={error} />}
+
+      <Field label="Username">
+        {(props) => (
+          <input
+            {...props}
+            name="username"
+            autoComplete="username"
+            autoCapitalize="none"
+            value={username}
+            onChange={(event) => {
+              setUsername(event.target.value);
+            }}
+          />
+        )}
+      </Field>
+      <Field label="Password">
+        {(props) => (
+          <input
+            {...props}
+            name="password"
+            type="password"
+            autoComplete="current-password"
+            value={password}
+            onChange={(event) => {
+              setPassword(event.target.value);
+            }}
+          />
+        )}
+      </Field>
+      <button
+        type="submit"
+        disabled={mutation.isPending || username.trim() === '' || password === ''}
+      >
+        {mutation.isPending ? 'Logging in…' : 'Log in'}
+      </button>
+    </form>
+  );
+}

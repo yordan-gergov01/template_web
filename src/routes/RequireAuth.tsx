@@ -1,9 +1,6 @@
-import type { ReactNode } from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router';
 
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
-import type { Permission } from '@/lib/api/types';
-import { NotAllowedPage } from '@/pages/NotAllowedPage';
 import { useAuth } from '@/providers/auth/auth-context';
 import type { LoginLocationState } from '@/types/navigation';
 
@@ -32,16 +29,4 @@ export function RequireAuth() {
     );
   }
   return <Outlet />;
-}
-
-/** Shows the page only with the permission; the backend still checks every request. */
-export function RequirePermission({
-  permission,
-  children,
-}: {
-  permission: Permission;
-  children: ReactNode;
-}) {
-  const { can } = useAuth();
-  return can(permission) ? children : <NotAllowedPage />;
 }

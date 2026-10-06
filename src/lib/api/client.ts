@@ -11,6 +11,12 @@ export interface RequestOptions {
   signal?: AbortSignal;
   /** Send the bearer token (default). The login request sets this to false. */
   auth?: boolean;
+  /**
+   * Report a 403 PERMISSION_DENIED to onForbidden (default). The request that
+   * reloads the permissions sets this to false, so the reload can never trigger
+   * another reload.
+   */
+  reportForbidden?: boolean;
 }
 
 export interface ApiClientOptions {
@@ -19,6 +25,8 @@ export interface ApiClientOptions {
   getToken: () => string | null;
   /** Called when a request that carried a token is answered with 401. */
   onUnauthorized: () => void;
+  /** Called when a request is refused with 403 PERMISSION_DENIED: the permissions may be stale. */
+  onForbidden?: () => void;
   fetch?: typeof fetch;
 }
 
@@ -34,7 +42,7 @@ export function createApiClient(options: ApiClientOptions) {
   // The response type is the caller's statement of the contract (see types.ts);
   // the body is not validated at run time.
   async function request<T>(method: HttpMethod, path: string, init: RequestOptions = {}) {
-    const { query, json, form, signal, auth = true } = init;
+    const { query, json, form, signal, auth = true, reportForbidden = true } = init;
 
     const url = new URL(path, options.baseUrl());
     for (const [key, value] of Object.entries(query ?? {})) {
@@ -71,6 +79,8 @@ export function createApiClient(options: ApiClientOptions) {
       const error: ApiError = await apiErrorFromResponse(response);
       if (response.status === 401 && token) {
         options.onUnauthorized();
+      } else if (error.code === 'PERMISSION_DENIED' && reportForbidden) {
+        options.onForbidden?.();
       }
       throw error;
     }
