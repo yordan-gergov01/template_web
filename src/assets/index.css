@@ -83,3 +83,13 @@ button {
 .notice {
   color: #1a7f37;
 }
+
+.details {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.25rem 1rem;
+}
+
+.details dd {
+  margin: 0;
+}
