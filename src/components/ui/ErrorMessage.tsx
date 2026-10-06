@@ -1,3 +1,4 @@
+import { Alert } from './Alert';
 import { ApiError, NetworkError } from '@/lib/api/errors';
 
 function describe(error: unknown): string {
@@ -36,13 +37,13 @@ export function ErrorMessage({ error }: ErrorMessageProps) {
   const requestId = error instanceof ApiError ? error.requestId : undefined;
 
   return (
-    <div role="alert" className="error-message">
-      <p>{describe(error)}</p>
+    <Alert>
+      <p className="my-0">{describe(error)}</p>
       {requestId && (
-        <p className="request-id">
-          Request ID: <code>{requestId}</code>
+        <p className="mt-1 mb-0 text-xs text-red-700">
+          Request ID: <code className="select-all">{requestId}</code>
         </p>
       )}
-    </div>
+    </Alert>
   );
 }

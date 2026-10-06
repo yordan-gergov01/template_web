@@ -26,7 +26,7 @@ export function Field({ label, error, hint, children }: FieldProps) {
   const describedBy = [hint ? hintId : null, error ? errorId : null].filter(Boolean).join(' ');
 
   return (
-    <div className="field">
+    <div className="grid gap-1.5">
       <label htmlFor={id}>{label}</label>
       {children({
         id,
@@ -34,12 +34,12 @@ export function Field({ label, error, hint, children }: FieldProps) {
         'aria-describedby': describedBy || undefined,
       })}
       {hint && (
-        <small id={hintId} className="field-hint">
+        <small id={hintId} className="text-xs text-gray-600">
           {hint}
         </small>
       )}
       {error && (
-        <small id={errorId} className="field-error">
+        <small id={errorId} className="text-xs font-medium text-red-700">
           {error}
         </small>
       )}

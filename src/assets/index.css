@@ -118,26 +118,11 @@
 }
 
 /* Temporary: these move to utility classes in their components. */
-.app-header {
-  @apply flex items-center justify-between gap-4 border-b border-gray-200 bg-white px-4 py-3;
-}
-
-.app-header nav,
-.app-header-user {
-  @apply flex items-center gap-4;
-}
-
-.field {
-  @apply grid gap-1;
-}
-
-.field-hint,
 .request-id,
 .model {
   @apply text-xs text-gray-600;
 }
 
-.field-error,
 .error-message {
   @apply text-sm text-red-700;
 }
