@@ -1,36 +1,28 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState, type SubmitEvent } from 'react';
 
-import { updateProfile } from './api';
+import { useUpdateProfile } from './use-update-profile';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { Field } from '@/components/ui/Field';
 import { toFormErrors } from '@/lib/api/form-errors';
 import type { Me } from '@/lib/api/types';
-import { meQueryOptions } from '@/providers/auth/session-api';
 import { changedFields } from '@/utils/changed-fields';
 import { validateEmail, validateFullName } from '@/utils/validation';
 
 const FIELDS = ['full_name', 'email'] as const;
 type ProfileField = (typeof FIELDS)[number];
 
+export interface ProfileFormProps {
+  user: Me;
+}
+
 /** Name and email only: users never change their own role or active status. */
-export function ProfileForm({ user }: { user: Me }) {
-  const queryClient = useQueryClient();
+export function ProfileForm({ user }: ProfileFormProps) {
   const [fullName, setFullName] = useState(user.full_name);
   const [email, setEmail] = useState(user.email);
   const [clientErrors, setClientErrors] = useState<Partial<Record<ProfileField, string>>>({});
   const [saved, setSaved] = useState(false);
 
-  const mutation = useMutation({
-    mutationFn: updateProfile,
-    onSuccess: (me) => {
-      queryClient.setQueryData(meQueryOptions.queryKey, me);
-      // The backend normalises the email (lowercase); show what it stored.
-      setFullName(me.full_name);
-      setEmail(me.email);
-      setSaved(true);
-    },
-  });
+  const mutation = useUpdateProfile();
 
   const submit = (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -54,7 +46,14 @@ export function ProfileForm({ user }: { user: Me }) {
       setSaved(true);
       return;
     }
-    mutation.mutate(changes);
+    mutation.mutate(changes, {
+      onSuccess: (me) => {
+        // The backend normalises the email (lowercase); show what it stored.
+        setFullName(me.full_name);
+        setEmail(me.email);
+        setSaved(true);
+      },
+    });
   };
 
   const server = mutation.error

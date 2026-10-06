@@ -24,11 +24,15 @@ function describe(error: unknown): string {
   return error.detail;
 }
 
+export interface ErrorMessageProps {
+  error: unknown;
+}
+
 /**
  * Shows an error from a backend call. The request ID identifies the request in
  * the backend logs and is shown so a failure can be reported.
  */
-export function ErrorMessage({ error }: { error: unknown }) {
+export function ErrorMessage({ error }: ErrorMessageProps) {
   const requestId = error instanceof ApiError ? error.requestId : undefined;
 
   return (

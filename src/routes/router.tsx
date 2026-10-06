@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react';
 import { Navigate, createBrowserRouter } from 'react-router';
 
-import { RequireAuth, RequirePermission } from './guards';
+import { RequireAuth } from './RequireAuth';
+import { RequirePermission } from './RequirePermission';
 import { AppShell, type NavItem } from '@/components/layout/AppShell';
 import type { Permission } from '@/lib/api/types';
 import { LoginPage } from '@/pages/LoginPage';

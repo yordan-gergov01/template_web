@@ -11,8 +11,12 @@ const FAILURE_MESSAGES: Record<JobErrorCode, string> = {
   BROKER_UNAVAILABLE: 'The request could not be queued. Please try again later.',
 };
 
+export interface JobResultProps {
+  job: Job;
+}
+
 /** The state of a prompt job. The answer is model output, so it is rendered as plain text only. */
-export function JobResult({ job }: { job: Job }) {
+export function JobResult({ job }: JobResultProps) {
   if (job.status === 'pending') {
     return (
       <p role="status" className="status">

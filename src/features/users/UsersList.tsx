@@ -1,27 +1,14 @@
-import { useQuery } from '@tanstack/react-query';
-import { Link, useSearchParams } from 'react-router';
+import { Link } from 'react-router';
 
-import { PAGE_SIZE, usersPageQueryOptions } from './api';
+import { useUsersPage } from './use-users-page';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { useAuth } from '@/providers/auth/auth-context';
 
-function pageFromParams(params: URLSearchParams): number {
-  const page = Number(params.get('page') ?? '1');
-  return Number.isInteger(page) && page >= 1 ? page : 1;
-}
-
-/** One page of users; the page number is kept in the URL (?page=2). */
+/** One page of users with paging controls. */
 export function UsersList() {
   const { can } = useAuth();
-  const [params, setParams] = useSearchParams();
-  const page = pageFromParams(params);
-  const { data, error, isPending, isPlaceholderData } = useQuery(
-    usersPageQueryOptions((page - 1) * PAGE_SIZE),
-  );
-
-  const goTo = (target: number) => {
-    setParams(target === 1 ? {} : { page: String(target) });
-  };
+  const { query, page, pages, goTo } = useUsersPage();
+  const { data, error, isPending, isPlaceholderData } = query;
 
   if (isPending) {
     return <p className="status">Loading…</p>;
@@ -29,8 +16,6 @@ export function UsersList() {
   if (error) {
     return <ErrorMessage error={error} />;
   }
-
-  const pages = Math.max(1, Math.ceil(data.total / PAGE_SIZE));
 
   return (
     <>

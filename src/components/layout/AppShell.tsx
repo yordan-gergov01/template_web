@@ -11,7 +11,11 @@ export interface NavItem {
 }
 
 /** Page frame for signed-in users; the navigation shows only what the user may use. */
-export function AppShell({ navItems }: { navItems: readonly NavItem[] }) {
+export interface AppShellProps {
+  navItems: readonly NavItem[];
+}
+
+export function AppShell({ navItems }: AppShellProps) {
   const { user, can, logout } = useAuth();
   const visible = navItems.filter((item) => !item.permission || can(item.permission));
 

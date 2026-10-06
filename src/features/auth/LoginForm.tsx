@@ -1,10 +1,9 @@
-import { useMutation } from '@tanstack/react-query';
 import { useState, type SubmitEvent } from 'react';
 
+import { useLogin } from './use-login';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { Field } from '@/components/ui/Field';
 import { ApiError } from '@/lib/api/errors';
-import { useAuth } from '@/providers/auth/auth-context';
 
 /**
  * Wrong username, wrong password and an inactive account all get the same
@@ -13,18 +12,13 @@ import { useAuth } from '@/providers/auth/auth-context';
 const INVALID_CREDENTIALS_MESSAGE = 'The username or password is incorrect.';
 
 export function LoginForm() {
-  const { login } = useAuth();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-
-  // Signing in also loads the user; the login page then moves on.
-  const mutation = useMutation({
-    mutationFn: () => login(username.trim(), password),
-  });
+  const mutation = useLogin();
 
   const submit = (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
-    mutation.mutate();
+    mutation.mutate({ username, password });
   };
 
   const { error } = mutation;

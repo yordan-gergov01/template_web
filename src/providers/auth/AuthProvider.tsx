@@ -18,13 +18,20 @@ import { EXPIRY_MARGIN_MS, tokenStorage } from '@/lib/token-storage';
 // setTimeout fires at once for delays above this (about 24.8 days).
 const MAX_TIMEOUT_MS = 2 ** 31 - 1;
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+export interface AuthProviderProps {
+  children: ReactNode;
+}
+
+export function AuthProvider({ children }: AuthProviderProps) {
   const queryClient = useQueryClient();
   const stored = useSyncExternalStore(tokenStorage.subscribe, tokenStorage.get);
   const [endReason, setEndReason] = useState<SessionEndReason | null>(null);
 
   const me = useQuery({ ...meQueryOptions, enabled: stored !== null });
 
+  // useCallback and useMemo below are referential: the context value reaches
+  // every page, so it must change only when the session does, and endSession is
+  // a dependency of the effects that register the 401 handler and the timer.
   const endSession = useCallback(
     (reason: SessionEndReason | null) => {
       tokenStorage.clear();

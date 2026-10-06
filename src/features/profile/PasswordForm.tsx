@@ -1,11 +1,9 @@
-import { useMutation } from '@tanstack/react-query';
 import { useState, type SubmitEvent } from 'react';
 
-import { changePassword } from './api';
+import { useChangePassword } from './use-change-password';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { Field } from '@/components/ui/Field';
 import { toFormErrors } from '@/lib/api/form-errors';
-import { useAuth } from '@/providers/auth/auth-context';
 import { validatePassword } from '@/utils/validation';
 
 const FIELDS = ['current_password', 'new_password', 'confirm_password'] as const;
@@ -16,18 +14,12 @@ type PasswordField = (typeof FIELDS)[number];
  * local session ends too and the user logs in again with the new password.
  */
 export function PasswordForm() {
-  const { endSession } = useAuth();
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [clientErrors, setClientErrors] = useState<Partial<Record<PasswordField, string>>>({});
 
-  const mutation = useMutation({
-    mutationFn: changePassword,
-    onSuccess: () => {
-      endSession('password-changed');
-    },
-  });
+  const mutation = useChangePassword();
 
   const submit = (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();

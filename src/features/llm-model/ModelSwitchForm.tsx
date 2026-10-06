@@ -5,11 +5,15 @@ import { modelQueryOptions } from './api';
 import type { ChangeModelMutation } from './use-change-model';
 import { Field } from '@/components/ui/Field';
 
+export interface ModelSwitchFormProps {
+  mutation: ChangeModelMutation;
+}
+
 /**
  * Picks the model for all new prompts. Shown only with llm:model:change; the
  * backend decides. Errors are shown by the page that owns the mutation.
  */
-export function ModelSwitchForm({ mutation }: { mutation: ChangeModelMutation }) {
+export function ModelSwitchForm({ mutation }: ModelSwitchFormProps) {
   const { data } = useQuery(modelQueryOptions);
   const [selected, setSelected] = useState<string | null>(null);
 

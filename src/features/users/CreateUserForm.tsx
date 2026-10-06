@@ -1,8 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useState, type SubmitEvent } from 'react';
 import { useNavigate } from 'react-router';
 
-import { USERS_KEY, createUser, rolesQueryOptions } from './api';
+import { rolesQueryOptions } from './api';
+import { useCreateUser } from './use-create-user';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { Field } from '@/components/ui/Field';
 import { toFormErrors } from '@/lib/api/form-errors';
@@ -18,7 +19,6 @@ const FIELDS = ['username', 'email', 'full_name', 'password', 'role'] as const;
 type CreateField = (typeof FIELDS)[number];
 
 export function CreateUserForm() {
-  const queryClient = useQueryClient();
   const navigate = useNavigate();
   const roles = useQuery(rolesQueryOptions);
   const [username, setUsername] = useState('');
@@ -28,13 +28,7 @@ export function CreateUserForm() {
   const [role, setRole] = useState<RoleName>('user');
   const [clientErrors, setClientErrors] = useState<Partial<Record<CreateField, string>>>({});
 
-  const mutation = useMutation({
-    mutationFn: createUser,
-    onSuccess: async (user) => {
-      await queryClient.invalidateQueries({ queryKey: USERS_KEY });
-      await navigate(`/users/${user.id}`);
-    },
-  });
+  const mutation = useCreateUser();
 
   const submit = (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -50,13 +44,20 @@ export function CreateUserForm() {
     if (Object.values(errors).some(Boolean)) {
       return;
     }
-    mutation.mutate({
-      username: username.trim(),
-      email: email.trim(),
-      full_name: fullName.trim(),
-      password,
-      role,
-    });
+    mutation.mutate(
+      {
+        username: username.trim(),
+        email: email.trim(),
+        full_name: fullName.trim(),
+        password,
+        role,
+      },
+      {
+        onSuccess: (user) => {
+          void navigate(`/users/${user.id}`);
+        },
+      },
+    );
   };
 
   const server = mutation.error
