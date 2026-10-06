@@ -11,8 +11,9 @@ export function CurrentModel() {
     return <ErrorMessage error={error} />;
   }
   return (
-    <p className="model">
-      Current model: <strong>{data?.current_model ?? '…'}</strong>
+    <p className="text-sm text-gray-600">
+      Current model:{' '}
+      <strong className="font-semibold text-gray-900">{data?.current_model ?? '…'}</strong>
     </p>
   );
 }

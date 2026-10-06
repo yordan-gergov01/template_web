@@ -24,30 +24,32 @@ export function UsersList() {
           <Link to="/users/new">Create user</Link>
         </p>
       )}
-      <table aria-busy={isPlaceholderData}>
-        <thead>
-          <tr>
-            <th scope="col">Username</th>
-            <th scope="col">Name</th>
-            <th scope="col">Email</th>
-            <th scope="col">Role</th>
-            <th scope="col">Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.items.map((user) => (
-            <tr key={user.id}>
-              <td>
-                <Link to={`/users/${user.id}`}>{user.username}</Link>
-              </td>
-              <td>{user.full_name}</td>
-              <td>{user.email}</td>
-              <td>{user.role}</td>
-              <td>{user.is_active ? 'Active' : 'Inactive'}</td>
+      <div className="overflow-x-auto">
+        <table aria-busy={isPlaceholderData}>
+          <thead>
+            <tr>
+              <th scope="col">Username</th>
+              <th scope="col">Name</th>
+              <th scope="col">Email</th>
+              <th scope="col">Role</th>
+              <th scope="col">Status</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {data.items.map((user) => (
+              <tr key={user.id}>
+                <td>
+                  <Link to={`/users/${user.id}`}>{user.username}</Link>
+                </td>
+                <td>{user.full_name}</td>
+                <td>{user.email}</td>
+                <td>{user.role}</td>
+                <td>{user.is_active ? 'Active' : 'Inactive'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
       <nav aria-label="Pages" className="pagination">
         <button
           type="button"

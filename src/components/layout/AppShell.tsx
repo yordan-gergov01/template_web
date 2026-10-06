@@ -49,7 +49,7 @@ export function AppShell({ navItems }: AppShellProps) {
         </div>
       </header>
       <main>
-        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-xs">
+        <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-xs sm:p-6">
           <Outlet />
         </div>
       </main>
