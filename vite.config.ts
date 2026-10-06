@@ -52,8 +52,6 @@ export default defineConfig(({ mode }) => {
     test: {
       include: ['src/**/*.test.{ts,tsx}'],
       environment: 'node',
-      // Removed once the first tests exist.
-      passWithNoTests: true,
     },
   };
 });
