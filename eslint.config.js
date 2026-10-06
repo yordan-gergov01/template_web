@@ -99,7 +99,7 @@ export default tseslint.config(
     ]),
   },
   {
-    files: ['**/*.js'],
+    files: ['**/*.{js,mjs}'],
     extends: [js.configs.recommended],
     languageOptions: { globals: globals.node },
     rules: { 'no-console': 'error' },
