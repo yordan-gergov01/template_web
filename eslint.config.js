@@ -4,20 +4,12 @@ import reactRefresh from 'eslint-plugin-react-refresh';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
-// Feature modules under src/features/. Each one may import only itself and
-// shared code, never another feature.
+// Feature modules under src/features/. Each one may import itself, shared code
+// and providers, never another feature.
 const FEATURES = ['auth', 'profile', 'users', 'prompts', 'llm-model'];
 
-// Folders that are not shared code: nothing in a feature or in a shared folder
-// may depend on them.
-const APP_LAYERS = [
-  '@/pages',
-  '@/pages/**',
-  '@/routes',
-  '@/routes/**',
-  '@/providers',
-  '@/providers/**',
-];
+// An import path group for a top-level folder under src/ and everything in it.
+const folder = (name) => [`@/${name}`, `@/${name}/**`];
 
 const restrictImports = (patterns) => ({
   'no-restricted-imports': ['error', { patterns }],
@@ -56,16 +48,53 @@ export default tseslint.config(
         group: ['@/features/*', `!@/features/${feature}`, `!@/features/${feature}/**`],
         message: 'Features never import other features; compose them in a page.',
       },
-      { group: APP_LAYERS, message: 'Features import only shared code.' },
+      {
+        group: [...folder('pages'), ...folder('routes')],
+        message: 'Features import only shared code and providers.',
+      },
     ]),
   })),
   {
-    files: ['src/{components,hooks,lib,utils,config,types}/**/*.{ts,tsx}'],
+    // Shared React code may use the session and other providers.
+    files: ['src/{components,hooks}/**/*.{ts,tsx}'],
     rules: restrictImports([
       noParentImports,
       {
-        group: ['@/features', '@/features/**', ...APP_LAYERS],
-        message: 'Shared code never depends on features, pages, routes or providers.',
+        group: [...folder('features'), ...folder('pages'), ...folder('routes')],
+        message: 'Shared code never depends on features, pages or routes.',
+      },
+    ]),
+  },
+  {
+    // Framework-free shared code sits below the providers, which import it.
+    files: ['src/{lib,utils,config,types}/**/*.{ts,tsx}'],
+    rules: restrictImports([
+      noParentImports,
+      {
+        group: [
+          ...folder('features'),
+          ...folder('pages'),
+          ...folder('routes'),
+          ...folder('providers'),
+        ],
+        message:
+          'lib, utils, config and types never depend on features, pages, routes or providers.',
+      },
+    ]),
+  },
+  {
+    files: ['src/providers/**/*.{ts,tsx}'],
+    rules: restrictImports([
+      noParentImports,
+      {
+        group: [
+          ...folder('features'),
+          ...folder('pages'),
+          ...folder('routes'),
+          ...folder('components'),
+          ...folder('hooks'),
+        ],
+        message: 'Providers import only from lib, config, utils and types.',
       },
     ]),
   },
