@@ -26,6 +26,14 @@
 - **Consequences:** The same image runs in every environment, and changing the backend URL takes a restart, not a rebuild. The frontend container needs no network connection to the backend. The backend must list each frontend origin in `CORS_ALLOWED_ORIGINS`, and the CSP's `connect-src` must name the backend origin.
 - **With more time:** Serving the frontend and the API under one origin behind a shared reverse proxy, which would remove CORS from the setup.
 
+### D-006: How the frontend receives an asynchronous result
+
+- **Context:** An answer from the LLM service arrives seconds after the prompt is submitted. The backend answers `POST /api/v1/prompts` with 202 and offers long polling (template_core D-009); the brief leaves open how the browser uses it. Each waiting poll holds a request on the backend, at most three per user and replica may wait at once, and every poll counts against the rate limit.
+- **Options considered:** Short polling at a fixed interval - simple, but slow or wasteful and harder on the rate limit; long polling one request at a time - an answer arrives as soon as it is stored, with one request per 25 seconds while waiting; parallel or overlapping polls - no gain, and they run into the concurrency limit; server-sent events or WebSockets - push without polling, but the backend does not offer them.
+- **Decision:** After the 202 the page long-polls `GET /api/v1/prompts/{id}?wait_seconds=25`, one request at a time, until the job is completed or failed. A 429 waits for `Retry-After`; network errors and 5xx answers back off 1, 2, 4 and 8 seconds, then 10, or follow `Retry-After` when given, and the backoff resets after any answer. Other errors stop polling and offer to check again. Polling is cancelled when the job finishes, when the page is left and before a new prompt starts. The answer is shown as plain text together with the model that produced it, and a failed job shows a message for its error code.
+- **Consequences:** Answers appear within moments without extra infrastructure or long-lived connections, and the client never exceeds the backend's limits by itself. Leaving the page ends the wait; the job still completes on the backend, but this page does not show it again.
+- **With more time:** A list of the user's recent prompts so an answer can be found after leaving the page, and server-sent events if the backend adds them.
+
 ## Additional decisions
 
 ### D-002: Toolchain, version pinning and quality checks
