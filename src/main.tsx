@@ -3,7 +3,6 @@ import { createRoot } from 'react-dom/client';
 
 import App from './App.tsx';
 import { ConfigError, getRuntimeConfig } from '@/config/runtime-config';
-import { AppProviders } from '@/providers/AppProviders';
 import './assets/index.css';
 
 const rootElement = document.getElementById('root');
@@ -16,9 +15,7 @@ try {
   getRuntimeConfig();
   root.render(
     <StrictMode>
-      <AppProviders>
-        <App />
-      </AppProviders>
+      <App />
     </StrictMode>,
   );
 } catch (error) {
