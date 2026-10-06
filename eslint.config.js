@@ -39,6 +39,17 @@ export default tseslint.config(
     files: ['src/**/*.{ts,tsx}'],
     extends: [reactHooks.configs.flat['recommended-latest'], reactRefresh.configs.vite],
     languageOptions: { globals: globals.browser },
+    rules: {
+      // Styles come only from the built stylesheet, so the production CSP can
+      // keep style-src 'self' without 'unsafe-inline'.
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: "JSXAttribute[name.name='style']",
+          message: 'Use Tailwind classes; inline styles break the style-src CSP.',
+        },
+      ],
+    },
   },
   ...FEATURES.map((feature) => ({
     files: [`src/features/${feature}/**/*.{ts,tsx}`],
