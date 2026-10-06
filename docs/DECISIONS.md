@@ -52,4 +52,12 @@
 - **Consequences:** A contract change shows up as a diff in the snapshot and as type errors where the app uses the changed fields. Responses are trusted to match the contract at run time. Regenerating is a manual step against a running backend.
 - **With more time:** A CI check that compares the committed snapshot with the backend's current document.
 
+### D-007: Styling approach
+
+- **Context:** The brief does not assess styling, but the app is demonstrated and must stay readable. The production image will send a strict Content-Security-Policy (`style-src 'self'`), so styles must come from a stylesheet on the same origin, not from inline styles or styles injected at run time.
+- **Options considered:** Plain global CSS - no tooling, but naming and reuse are by convention only and the file grows with each screen; CSS modules - scoped class names built into Vite, but every component needs its own file and shared patterns are copied; Tailwind CSS through its Vite plugin - utility classes in the markup and one static CSS file at build time; a component library - fast, but a large dependency and its own look, which the brief does not ask for.
+- **Decision:** Tailwind CSS v4 through the official Vite plugin. Native elements (forms, buttons, tables, headings) and a visible focus outline are styled once in a base layer; five shared classes cover patterns used across features, and any further shared pattern becomes a component in `components/ui/` instead of another class. Components that own their layout use utility classes, and Prettier sorts them. There is no component library and no dark mode, and ESLint rejects inline `style` attributes. The production build emits one static CSS file, which the CSP allows.
+- **Consequences:** Styling stays close to the markup and consistent across screens, with visible focus states for keyboard users and a layout that holds at phone width. Class lists make some JSX longer, and Tailwind is one more build dependency.
+- **With more time:** Shared design tokens (colours, spacing) documented for other projects started from this skeleton.
+
 ## What I would change with more time
