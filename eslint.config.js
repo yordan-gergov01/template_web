@@ -48,6 +48,10 @@ export default tseslint.config(
           selector: "JSXAttribute[name.name='style']",
           message: 'Use Tailwind classes; inline styles break the style-src CSP.',
         },
+        {
+          selector: "JSXOpeningElement[name.name='style']",
+          message: 'Put styles in src/assets/index.css; <style> elements break the style-src CSP.',
+        },
       ],
     },
   },
