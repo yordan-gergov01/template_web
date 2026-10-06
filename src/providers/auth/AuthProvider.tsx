@@ -11,7 +11,7 @@ import {
 import { AuthContext, type AuthContextValue, type SessionEndReason } from './auth-context';
 import { hasPermission } from './permissions';
 import { loginRequest, logoutRequest, meQueryOptions } from './session-api';
-import { setUnauthorizedHandler } from '@/lib/api/http';
+import { setForbiddenHandler, setUnauthorizedHandler } from '@/lib/api/http';
 import type { Permission } from '@/lib/api/types';
 import { EXPIRY_MARGIN_MS, tokenStorage } from '@/lib/token-storage';
 
@@ -41,6 +41,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         endSession('unauthorized');
       }),
     [endSession],
+  );
+
+  // A refused request may mean the user's permissions changed: reload them so
+  // the navigation catches up. The reload itself never reports a 403.
+  useEffect(
+    () =>
+      setForbiddenHandler(() => {
+        void queryClient.invalidateQueries({ queryKey: meQueryOptions.queryKey });
+      }),
+    [queryClient],
   );
 
   // End the session shortly before the token expires.

@@ -47,3 +47,39 @@ main {
 .request-id code {
   user-select: all;
 }
+
+form {
+  display: grid;
+  gap: 1rem;
+  max-width: 32rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.field input,
+.field select,
+.field textarea {
+  font: inherit;
+  padding: 0.4rem 0.5rem;
+}
+
+.field-hint {
+  color: #57606a;
+}
+
+.field-error {
+  color: #a40e26;
+}
+
+button {
+  font: inherit;
+  justify-self: start;
+  padding: 0.4rem 0.9rem;
+}
+
+.notice {
+  color: #1a7f37;
+}

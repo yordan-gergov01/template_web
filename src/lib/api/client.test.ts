@@ -20,10 +20,12 @@ function problem(status: number, code: string) {
 function setup(respond: () => Promise<Response>, token: string | null = 'tkn') {
   const fetchMock = vi.fn<typeof fetch>(respond);
   const onUnauthorized = vi.fn();
+  const onForbidden = vi.fn();
   const client = createApiClient({
     baseUrl: () => 'http://backend:8000',
     getToken: () => token,
     onUnauthorized,
+    onForbidden,
     fetch: fetchMock,
   });
   const lastCall = () => {
@@ -35,7 +37,7 @@ function setup(respond: () => Promise<Response>, token: string | null = 'tkn') {
     const href = typeof url === 'string' ? url : url instanceof URL ? url.href : url.url;
     return { url: href, init, headers: new Headers(init.headers) };
   };
-  return { client, onUnauthorized, lastCall };
+  return { client, onUnauthorized, onForbidden, lastCall };
 }
 
 describe('createApiClient', () => {
@@ -127,6 +129,36 @@ describe('createApiClient', () => {
     );
     await expect(client.get('/api/v1/users/me')).rejects.toBeInstanceOf(ApiError);
     expect(onUnauthorized).not.toHaveBeenCalled();
+  });
+
+  it('reports a 403 PERMISSION_DENIED', async () => {
+    const { client, onForbidden, onUnauthorized } = setup(() =>
+      Promise.resolve(problem(403, 'PERMISSION_DENIED')),
+    );
+
+    await expect(client.put('/api/v1/llm/model', { json: { model: 'x' } })).rejects.toMatchObject({
+      status: 403,
+    });
+    expect(onForbidden).toHaveBeenCalledOnce();
+    expect(onUnauthorized).not.toHaveBeenCalled();
+  });
+
+  it('does not report a 403 when the request opts out', async () => {
+    const { client, onForbidden } = setup(() => Promise.resolve(problem(403, 'PERMISSION_DENIED')));
+
+    await expect(client.get('/api/v1/users/me', { reportForbidden: false })).rejects.toBeInstanceOf(
+      ApiError,
+    );
+    expect(onForbidden).not.toHaveBeenCalled();
+  });
+
+  it('does not report other 403 codes', async () => {
+    const { client, onForbidden } = setup(() =>
+      Promise.resolve(problem(403, 'SELF_MODIFICATION_FORBIDDEN')),
+    );
+
+    await expect(client.patch('/api/v1/users/1', { json: {} })).rejects.toBeInstanceOf(ApiError);
+    expect(onForbidden).not.toHaveBeenCalled();
   });
 
   it('wraps connection failures in a NetworkError', async () => {

@@ -1,19 +1,27 @@
 import { ApiError, NetworkError } from '@/lib/api/errors';
 
 function describe(error: unknown): string {
-  if (error instanceof ApiError) {
-    if (error.status === 403 && error.code === 'PERMISSION_DENIED') {
-      return 'You are not allowed to do this.';
-    }
-    if (error.status >= 500) {
-      return 'Something went wrong on the server. Please try again later.';
-    }
-    return error.detail;
-  }
   if (error instanceof NetworkError) {
     return 'The server could not be reached. Check your connection and try again.';
   }
-  return 'Something went wrong.';
+  if (!(error instanceof ApiError)) {
+    return 'Something went wrong.';
+  }
+  if (error.code === 'PERMISSION_DENIED') {
+    return 'You are not allowed to do this.';
+  }
+  if (error.status === 429) {
+    return error.retryAfter === undefined
+      ? 'Too many requests. Please wait a moment and try again.'
+      : `Too many requests. Try again in ${String(error.retryAfter)} seconds.`;
+  }
+  if (error.status === 503) {
+    return 'The service is temporarily unavailable. Please try again later.';
+  }
+  if (error.status >= 500) {
+    return 'Something went wrong on the server. Please try again later.';
+  }
+  return error.detail;
 }
 
 /**

@@ -14,6 +14,7 @@ export function logoutRequest() {
 
 export const meQueryOptions = queryOptions({
   queryKey: ['me'],
-  queryFn: ({ signal }) => api.get<Me>('/api/v1/users/me', { signal }),
+  // Never reports a 403: this query is what a reported 403 reloads.
+  queryFn: ({ signal }) => api.get<Me>('/api/v1/users/me', { signal, reportForbidden: false }),
   staleTime: 60_000,
 });
