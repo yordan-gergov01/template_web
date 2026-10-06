@@ -1,142 +1,143 @@
-:root {
-  font-family: system-ui, sans-serif;
-  line-height: 1.5;
-  color: #1f2328;
-  background-color: #ffffff;
+@import 'tailwindcss';
+
+/*
+ * Native elements are styled once here, so forms and tables inside the
+ * features need no class lists. Every interactive element keeps a visible
+ * focus outline for keyboard users.
+ */
+@layer base {
+  html {
+    @apply bg-gray-50 text-gray-900 antialiased;
+  }
+
+  main {
+    @apply mx-auto max-w-4xl px-4 py-8;
+  }
+
+  h1 {
+    @apply mb-6 text-2xl font-semibold tracking-tight;
+  }
+
+  h2 {
+    @apply mt-10 mb-4 text-lg font-semibold;
+  }
+
+  p {
+    @apply my-2;
+  }
+
+  a {
+    @apply text-blue-700 underline-offset-2 hover:underline;
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-blue-600;
+  }
+
+  form,
+  fieldset {
+    @apply grid max-w-lg gap-5;
+  }
+
+  label {
+    @apply text-sm font-medium text-gray-800;
+  }
+
+  input,
+  select,
+  textarea {
+    @apply w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-xs;
+  }
+
+  textarea {
+    @apply resize-y;
+  }
+
+  :is(input, select, textarea):disabled {
+    @apply cursor-not-allowed bg-gray-100 text-gray-500;
+  }
+
+  :is(input, select, textarea)[aria-invalid='true'] {
+    @apply border-red-600;
+  }
+
+  button {
+    @apply cursor-pointer justify-self-start rounded-md bg-blue-700 px-4 py-2 text-sm font-medium text-white hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  table {
+    @apply w-full border-collapse text-sm;
+  }
+
+  th {
+    @apply border-b border-gray-300 px-3 py-2 text-left font-semibold text-gray-700;
+  }
+
+  td {
+    @apply border-b border-gray-200 px-3 py-2;
+  }
+
+  table[aria-busy='true'] {
+    @apply opacity-60;
+  }
+
+  code,
+  pre {
+    @apply font-mono text-xs;
+  }
 }
 
-body {
-  margin: 0;
+/*
+ * The only shared classes. Any new shared pattern becomes a component in
+ * components/ui/ instead of another class here.
+ */
+@layer components {
+  .notice {
+    @apply rounded-md border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-800;
+  }
+
+  .status {
+    @apply text-sm text-gray-600;
+  }
+
+  .details {
+    @apply grid grid-cols-[max-content_1fr] gap-x-6 gap-y-1 text-sm;
+
+    & dt {
+      @apply font-medium text-gray-600;
+    }
+  }
+
+  .pagination {
+    @apply mt-4 flex items-center gap-4 text-sm text-gray-700;
+  }
+
+  .answer {
+    @apply rounded-md border border-gray-200 bg-white p-4 text-sm [overflow-wrap:anywhere] whitespace-pre-wrap;
+  }
 }
 
-main {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 1.5rem;
-}
-
+/* Temporary: these move to utility classes in their components. */
 .app-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-  padding: 0.75rem 1.5rem;
-  border-bottom: 1px solid #d0d7de;
+  @apply flex items-center justify-between gap-4 border-b border-gray-200 bg-white px-4 py-3;
 }
 
 .app-header nav,
 .app-header-user {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.app-header nav a.active {
-  font-weight: 600;
-}
-
-.error-message {
-  color: #a40e26;
-}
-
-.request-id {
-  font-size: 0.85rem;
-  color: #57606a;
-}
-
-.request-id code {
-  user-select: all;
-}
-
-form {
-  display: grid;
-  gap: 1rem;
-  max-width: 32rem;
+  @apply flex items-center gap-4;
 }
 
 .field {
-  display: grid;
-  gap: 0.25rem;
+  @apply grid gap-1;
 }
 
-.field input,
-.field select,
-.field textarea {
-  font: inherit;
-  padding: 0.4rem 0.5rem;
+.field-hint,
+.request-id,
+.model {
+  @apply text-xs text-gray-600;
 }
 
-.field-hint {
-  color: #57606a;
-}
-
-.field-error {
-  color: #a40e26;
-}
-
-button {
-  font: inherit;
-  justify-self: start;
-  padding: 0.4rem 0.9rem;
-}
-
-.notice {
-  color: #1a7f37;
-}
-
-.details {
-  display: grid;
-  grid-template-columns: max-content 1fr;
-  gap: 0.25rem 1rem;
-}
-
-.details dd {
-  margin: 0;
-}
-
-table {
-  border-collapse: collapse;
-  width: 100%;
-}
-
-th,
-td {
-  text-align: left;
-  padding: 0.4rem 0.6rem;
-  border-bottom: 1px solid #d0d7de;
-}
-
-table[aria-busy='true'] {
-  opacity: 0.6;
-}
-
-.pagination {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
-fieldset {
-  display: grid;
-  gap: 1rem;
-  border: none;
-  margin: 0;
-  padding: 0;
-}
-
-textarea {
-  resize: vertical;
-}
-
-.answer {
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-  padding: 0.75rem;
-  background-color: #f6f8fa;
-}
-
-.model,
-.status {
-  color: #57606a;
+.field-error,
+.error-message {
+  @apply text-sm text-red-700;
 }

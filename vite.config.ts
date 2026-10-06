@@ -1,5 +1,6 @@
 import { fileURLToPath } from 'node:url';
 
+import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import { loadEnv, type Plugin, type PreviewServer, type ViteDevServer } from 'vite';
 import { defineConfig } from 'vitest/config';
@@ -40,7 +41,7 @@ export default defineConfig(({ mode }) => {
   const backendUrl = checkBackendUrl(env.BACKEND_URL ?? DEFAULT_BACKEND_URL);
 
   return {
-    plugins: [react(), runtimeConfig(backendUrl)],
+    plugins: [react(), tailwindcss(), runtimeConfig(backendUrl)],
     resolve: {
       alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
     },
