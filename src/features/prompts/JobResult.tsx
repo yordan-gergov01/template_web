@@ -1,3 +1,4 @@
+import { Alert } from '@/components/ui/Alert';
 import type { Job, JobErrorCode } from '@/lib/api/types';
 
 const FAILURE_MESSAGES: Record<JobErrorCode, string> = {
@@ -30,12 +31,12 @@ export function JobResult({ job }: JobResultProps) {
       ? FAILURE_MESSAGES[job.error_code]
       : 'The prompt could not be answered.';
     return (
-      <div role="alert" className="error-message">
-        <p>{message}</p>
-        <p className="request-id">
-          Model: {job.model}. Job ID: <code>{job.id}</code>
+      <Alert>
+        <p className="my-0">{message}</p>
+        <p className="mt-1 mb-0 text-xs text-red-700">
+          Model: {job.model}. Job ID: <code className="select-all">{job.id}</code>
         </p>
-      </div>
+      </Alert>
     );
   }
 
@@ -43,8 +44,8 @@ export function JobResult({ job }: JobResultProps) {
     <section aria-label="Answer">
       <h2>Answer</h2>
       <p className="answer">{job.output}</p>
-      <p className="model">
-        Answered by <strong>{job.model}</strong>
+      <p className="text-xs text-gray-600">
+        Answered by <strong className="font-semibold text-gray-800">{job.model}</strong>
       </p>
     </section>
   );

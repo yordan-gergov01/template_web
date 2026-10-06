@@ -1,6 +1,7 @@
 import { useState, type SubmitEvent } from 'react';
 
 import { useLogin } from './use-login';
+import { Alert } from '@/components/ui/Alert';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { Field } from '@/components/ui/Field';
 import { ApiError } from '@/lib/api/errors';
@@ -27,9 +28,9 @@ export function LoginForm() {
   return (
     <form onSubmit={submit} noValidate>
       {invalidCredentials && (
-        <p role="alert" className="error-message">
-          {INVALID_CREDENTIALS_MESSAGE}
-        </p>
+        <Alert>
+          <p className="my-0">{INVALID_CREDENTIALS_MESSAGE}</p>
+        </Alert>
       )}
       {error && !invalidCredentials && <ErrorMessage error={error} />}
 
