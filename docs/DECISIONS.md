@@ -10,6 +10,14 @@
 - **Consequences:** The build output is static files served by nginx, so one image fits every environment. Server data has a single source, with caching and invalidation after changes. Each feature can be read on its own.
 - **With more time:** Component tests with Testing Library and end-to-end tests against a running backend.
 
+### D-002: Dependency management, linting and formatting
+
+- **Context:** The brief leaves open how dependencies are managed and how code quality is checked. Builds must be reproducible, and the checks must give the same result on every machine.
+- **Options considered:** Version ranges with a lockfile - installs are pinned, but `npm install` can move direct dependencies; exact versions with a lockfile installed by `npm ci` - every version visible in `package.json`, updates are deliberate. TypeScript 7 - the newest, but typescript-eslint and openapi-typescript do not support it yet; TypeScript 5.9 - supported by every tool in use. A Git hook tool such as husky - checks run automatically, but one more dependency, and hooks can be skipped; a single `npm run check` script.
+- **Decision:** Exact versions and the committed lockfile, installed with `npm ci` in the image; Node 24 LTS through `.nvmrc` and `engines`; TypeScript 5.9 in strict mode. ESLint (strict type-checked rules, React hooks rules, import boundaries), Prettier and Vitest run together through `npm run check`, which must pass before every commit.
+- **Consequences:** The same commit installs the same packages everywhere, and dependency updates appear as reviewable diffs. Running the checks before a commit is a habit, not enforced by a hook. TypeScript stays one major version behind until the tools support 7.
+- **With more time:** A CI pipeline that runs `npm run check` and builds the image on every push, automated dependency updates with a vulnerability scan, and TypeScript 7 once typescript-eslint supports it.
+
 ### D-003: Where the browser keeps the token, and how logout works
 
 - **Context:** The brief leaves open where the frontend keeps the access token and what logging out does. The choice decides what a cross-site scripting flaw could steal, whether a reload keeps the session, and how a session ends. The backend issues 30-minute bearer tokens and revokes all of a user's tokens at once (template_core D-006).
@@ -35,14 +43,6 @@
 - **With more time:** A list of the user's recent prompts so an answer can be found after leaving the page, and server-sent events if the backend adds them.
 
 ## Additional decisions
-
-### D-002: Toolchain, version pinning and quality checks
-
-- **Context:** The brief leaves open how dependencies are managed and how code quality is checked. Builds must be reproducible, and the checks must give the same result on every machine.
-- **Options considered:** Version ranges with a lockfile - installs are pinned, but `npm install` can move direct dependencies; exact versions with a lockfile installed by `npm ci` - every version visible in `package.json`, updates are deliberate. TypeScript 7 - the newest, but typescript-eslint and openapi-typescript do not support it yet; TypeScript 5.9 - supported by every tool in use. A Git hook tool such as husky - checks run automatically, but one more dependency, and hooks can be skipped; a single `npm run check` script.
-- **Decision:** Exact versions and the committed lockfile, installed with `npm ci` in the image; Node 24 LTS through `.nvmrc` and `engines`; TypeScript 5.9 in strict mode. ESLint (strict type-checked rules, React hooks rules, import boundaries), Prettier and Vitest run together through `npm run check`, which must pass before every commit.
-- **Consequences:** The same commit installs the same packages everywhere, and dependency updates appear as reviewable diffs. Running the checks before a commit is a habit, not enforced by a hook. TypeScript stays one major version behind until the tools support 7.
-- **With more time:** A CI pipeline that runs `npm run check` and builds the image on every push, automated dependency updates with a vulnerability scan, and TypeScript 7 once typescript-eslint supports it.
 
 ### D-005: API types generated from the backend's OpenAPI document
 

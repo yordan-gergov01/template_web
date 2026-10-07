@@ -80,7 +80,7 @@ values from template_core's `.env.example` that is `admin` with the password
 To try the app as a plain user, create one on the **Users** screen with the role `user`, then
 log in with it in another browser tab: each tab keeps its own session.
 
-## How to run the tests and linters
+## How to run the tests
 
 All checks run with one command, which must pass before every commit:
 
@@ -170,7 +170,10 @@ the backend logs. A top-level error boundary replaces a blank page with a messag
 features; shared code lives in `components/`, `hooks/`, `lib/` (API client, generated types,
 query client), `utils/`, `config/` and `types/`; the session lives in `providers/auth/`.
 ESLint enforces the import rules: features never import each other, and shared code never
-depends on features, pages or routes. Server data goes through TanStack Query only.
+depends on features, pages or routes. Server data goes through TanStack Query only. A new
+screen is a feature folder for its components, hooks and API calls, a page that composes it,
+and one entry in `PROTECTED_PAGES` in `src/routes/router.tsx`, which adds its route, its
+permission guard and, with a label, its navigation link.
 
 **Container and security headers.** A two-stage image: Node builds the app with `npm ci`, then
 non-root nginx serves it. Both base images are pinned by digest. The container runs with a
